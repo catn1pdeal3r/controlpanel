@@ -1,28 +1,18 @@
 <br/>
 <p align="center">
-  <a href="https://github.com/Lunes-Hosting/controlpanel">
+  <a href="https://github.com/catn1pdeal3r/controlpanel">
     <img src="https://cdn.discordapp.com/avatars/1054831148557160639/b2c68aac0866e48f36f318d0137ced98.png?size=1024" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Lunes ControlPanel</h3>
+  <h3 align="center">Lunes Control Panel</h3>
 
   <p align="center">
-    Python-Pterodactyl Dashpanel: Soaring to New Heights in Server Management!
+    Python-Pterodactyl Dashboard
     <br/>
     <br/>
-    <a href="https://github.com/Lunes-Hosting/controlpanel/issues">Request Feature</a>
+    <a href="https://github.com/catn1pdeal3r/controlpanel/issues">Request Feature</a>
   </p>
 </p>
-
-
-## Table Of Contents
-
-* [About the Project](#about-the-project)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [License](#license)
-* [Authors](#authors)
 
 ## About The Project
 
@@ -33,7 +23,7 @@
 
 
 
-The project is designed to enhance the user experience when working with Pterodactyl game servers. It provides a user-friendly and customizable dashboard that simplifies server management, making it easier than ever to navigate and control your game servers.
+The project is designed to enhance the user experience when working with Pterodactyl containers. It provides a user-friendly and customizable dashboard that simplifies server management, making it easier than ever to navigate and control your servers.
 
 # Getting Started
 
@@ -51,28 +41,19 @@ The project is designed to enhance the user experience when working with Pteroda
 2. Clone the repo
 
 ```sh
-git clone https://github.com/Lunes-Hosting/controlpanel
+git clone https://github.com/catn1pdeal3r/controlpanel
 ```
 
 3. 
 ```py
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 4. Type in the command
 
 ```Py
-python app.py
+python3 app.py
 ```
-
-### Creating A Pull Request
-
-1. Fork the Project
-2. Create your Feature Branch 
-3. Commit your Changes 
-4. Push to the Branch 
-5. Open a Pull Request
-
 ## License
 
 Distributed under the GNU General Public License (GPL). See [LICENSE](https://github.com/Lunes-Hosting/controlpanel/blob/main/license.txt) for more information.
