@@ -19,6 +19,9 @@
 ![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/2bbd22f3-a89f-491b-b134-50bdd0dab16f)
 ![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/47beab50-30d0-4550-8070-71823a2738d3)
 ![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/fda854a4-6917-42f1-a413-71aa6a56b054)
+![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/7a84c3cb-b380-47dc-9c09-493424d3938f)
+![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/a3bdfa53-002a-4ef3-b085-7ef23f9ee4bf)
+![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/937185ba-527f-4d86-be5d-fc87c43a89ec)
 
 
 
