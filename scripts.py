@@ -1,7 +1,7 @@
 import datetime
 import string
 import threading
-
+import os
 import bcrypt
 import mysql.connector
 # Establish a connection to the database
@@ -9,8 +9,8 @@ import mysql.connector
 import requests
 from flask import url_for, redirect
 from werkzeug.datastructures.headers import EnvironHeaders
+from config.config import *
 
-from config import *
 from products import products
 import secrets
 
