@@ -26,7 +26,12 @@
 
 ## About The Project
 
-![Screen Shot](https://media.licdn.com/dms/image/D562DAQGMmA-FcxyG8Q/profile-treasury-image-shrink_800_800/0/1695065224963?e=1696568400&v=beta&t=eBJgKJNxicomJTqk6LYryhLo0UvTkIpSet1NepyDqcs)
+![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/2bbd22f3-a89f-491b-b134-50bdd0dab16f)
+![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/47beab50-30d0-4550-8070-71823a2738d3)
+![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/fda854a4-6917-42f1-a413-71aa6a56b054)
+
+
+
 
 The project is designed to enhance the user experience when working with Pterodactyl game servers. It provides a user-friendly and customizable dashboard that simplifies server management, making it easier than ever to navigate and control your game servers.
 
