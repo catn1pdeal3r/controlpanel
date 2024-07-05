@@ -58,7 +58,7 @@ scheduler.init_app(app)
 
 app.config['MAIL_SERVER'] = MAIL_SERVER
 app.config['MAIL_PORT'] = MAIL_PORT
-app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False').lower() in ['true', '1', 'yes']
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
@@ -66,7 +66,12 @@ app.config['TURNSTILE_PUBLIC_KEY'] = TURNSTILE_SITE_KEY
 app.config['TURNSTILE_SECRET_KEY'] = TURNSTILE_SECRET_KEY
 
 mail = Mail(app)
-
+@app.route('/send-mail')
+def send_mail():
+    msg = Message('Test Subject', recipients=['lucipurrkitty76@gmail.com'])
+    msg.body = 'This is a test email sent from a Flask application.'
+    mail.send(msg)
+    return 'Mail sent!'
 # Configuration for Flask-Caching
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
@@ -201,11 +206,12 @@ def register_user():
             'response': turnstile_response
         }
 
-        response = requests.post('https://challenges.cloudflare.com/turnstile/v0/api.js', data=data)
+        response = requests.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', data=data)
         result = response.json()
         if not result['success']:
             flash("Failed captcha please try again")
             return render_template("register.html", TURNSTILE_PUBLIC_KEY=TURNSTILE_SITE_KEY)
+
         data = request.form
         email = data.get('email')
         password = data.get('password')
@@ -341,4 +347,4 @@ def index():
 
 if __name__ == '__main__':
     # Create separate processes for Flask and the Discord bot
-    app.run(debug=False, host="0.0.0.0", port=1137)
+    app.run(debug=False, host="0.0.0.0", port=80)

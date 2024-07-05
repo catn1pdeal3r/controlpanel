@@ -1,84 +1,88 @@
-{% include 'taskbar.html' %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            margin-top: 50px;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-        h1 {
-            font-size: 28px;
-            color: #333;
-            text-align: center;
-        }
-        .user-info {
-            margin-top: 30px;
-            text-align: center;
-        }
-        .user-info p {
-            font-size: 18px;
-            margin: 10px 0;
-            color: #555;
-        }
-        .button-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .account-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-        .account-button:hover {
-            background-color: #2980b9;
-        }
-    </style>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6122367965027230"
-     crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.1.9/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/37a0f8002e.js" crossorigin="anonymous"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-white">
 
-    <div class="container">
-        <h1>Welcome to Your Account</h1>
-        <div class="user-info">
-            <p><strong>Username:</strong> {{username}}</p>
-            <p><strong>Email:</strong> {{email}}</p>
-            <p><strong>Credits:</strong> {{credits}}</p>
-            <p><strong>Server Count:</strong> {{server_count}}</p>
-            <p><strong>Current monthly credit usage:</strong>{{monthly_usage}}</p>
+    <nav class="bg-gray-800 shadow-lg fixed w-full z-10">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="{{url_for('index')}}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-home fa-lg"></i>
+                        <span class="font-semibold">Home</span>
+                    </a>
+                    <a href="{{url_for('servers.servers_index')}}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-server fa-lg"></i>
+                        <span class="font-semibold">Servers</span>
+                    </a>
+                    <a href="{{url_for('user.index')}}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-user fa-lg"></i>
+                        <span class="font-semibold">Account</span>
+                    </a>
+                    <a href="{{url_for('store.storepage')}}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-store fa-lg"></i>
+                        <span class="font-semibold">Store</span>
+                    </a>
+                    <a href="https://discord.gg/BAdPPdN97c" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fab fa-discord fa-lg"></i>
+                        <span class="font-semibold">Discord</span>
+                    </a>
+                </div>
+                <div>
+                    <a href="{{url_for('user.logout')}}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-power-off fa-lg"></i>
+                        <span class="font-semibold">Logout</span>
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="button-container">
-            <a href="{{url_for('user.logout')}}" class="account-button">Log out</a>
+    </nav>
+
+    <div class="min-h-screen pt-16 flex items-center justify-center">
+        <div class="max-w-lg w-full bg-gray-800 shadow-lg rounded-lg p-8">
+            <h1 class="text-4xl font-bold text-center mb-6">Welcome to Your Account</h1>
+            <div class="space-y-4">
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <p class="text-lg"><strong>Username:</strong> {{username}}</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <p class="text-lg"><strong>Email:</strong> {{email}}</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <p class="text-lg"><strong>Credits:</strong> {{credits}}</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <p class="text-lg"><strong>Server Count:</strong> {{server_count}}</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <p class="text-lg"><strong>Current monthly credit usage:</strong> {{monthly_usage}}</p>
+                </div>
+            </div>
+            <div class="flex justify-center mt-6">
+                <a href="{{url_for('user.logout')}}" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">Log out</a>
+            </div>
         </div>
     </div>
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-    {{ message }}
-{% endfor %}
-{% endif %}
-{% endwith %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="fixed top-0 left-0 w-full p-4">
+                {% for message in messages %}
+                    <div class="bg-red-600 text-white rounded-lg p-4 mb-4 shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current text-white h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
 </body>
 </html>

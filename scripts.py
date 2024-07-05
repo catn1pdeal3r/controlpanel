@@ -23,25 +23,34 @@ CLIENT_HEADERS = {"Authorization": f"Bearer {PTERODACTYL_ADMIN_USER_KEY}",
 
 
 def sync_users_script():
-    """Adds any users to panel that was added using pterodactyl"""
+    """Adds any users to panel that were added using pterodactyl"""
     data = requests.get(f"{PTERODACTYL_URL}api/application/users?per_page=100000", headers=HEADERS).json()
+    
     for user in data['data']:
-
-        query = f"SELECT * FROM users WHERE email = %s"
-        user_controlpanel = use_database(query, (user['attributes']['email'],))
-
+        email = user['attributes']['email']
+        
+        # Check if user already exists in the control panel
+        query = "SELECT * FROM users WHERE email = %s"
+        user_controlpanel = use_database(query, (email,))
+        
         if user_controlpanel is None:
-            user_id = use_database("SELECT * FROM users ORDER BY id DESC LIMIT 0, 1")[0] + 1
-            password = use_database(f"select password from users where email = %s", (user['attributes']['email'],),
-                                    "panel")
-            query = ("INSERT INTO users (name, email, password, id, pterodactyl_id, credits) VALUES (%s, %s, %s, %s, "
-                     "%s, %s)")
-
-            values = (
-                user['attributes']['username'], user['attributes']['email'], password[0], user_id,
-                user['attributes']['id'],
-                25)
-            use_database(query, values)
+            # Determine the next available user ID
+            latest_user = use_database("SELECT MAX(id) FROM users")
+            user_id = (latest_user[0] + 1) if latest_user and latest_user[0] is not None else 1
+            
+            # Fetch password from Pterodactyl or set a default value
+            password = use_database("SELECT password FROM users WHERE email = %s", (email,))
+            password = password[0] if password else "default_password"  # Replace "default_password" as needed
+            
+            # Insert new user into control panel database
+            query = "INSERT INTO users (name, email, password, id, pterodactyl_id, credits) VALUES (%s, %s, %s, %s, %s, %s)"
+            values = (user['attributes']['username'], email, password, user_id, user['attributes']['id'], 25)
+            
+            try:
+                use_database(query, values)
+                print(f"User '{user['attributes']['username']}' added successfully.")
+            except Exception as e:
+                print(f"Error adding user '{user['attributes']['username']}': {str(e)}")
 
 
 def get_nodes() -> list[dict]:

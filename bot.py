@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from config import *
+from config.config import *
 
 bot = discord.Bot()
 

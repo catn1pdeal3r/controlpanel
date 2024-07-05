@@ -1,41 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Servers</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/Luneslogo.png') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/servers.css') }}">
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6122367965027230"
     crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/37a0f8002e.js" crossorigin="anonymous"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-white">
 
-    {%if not verified%}
-    <h2>You must verify email to create servers <a href={{url_for('resend_confirmation_email')}}>Resend Verification email</a></h2>
-    {% endif %}
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-        {{ message }}
-    {% endfor %}
-{% endif %}
-{% endwith %}
-    {% include 'taskbar.html' %}
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-800 shadow-lg fixed w-full z-10 top-0">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('index') }}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-home fa-lg"></i>
+                        <span class="font-semibold">Home</span>
+                    </a>
+                    <a href="{{ url_for('servers.servers_index') }}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-server fa-lg"></i>
+                        <span class="font-semibold">Servers</span>
+                    </a>
+                    <a href="{{ url_for('user.index') }}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-user fa-lg"></i>
+                        <span class="font-semibold">Account</span>
+                    </a>
+                    <a href="https://discord.gg/BAdPPdN97c" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fab fa-discord fa-lg"></i>
+                        <span class="font-semibold">Discord</span>
+                    </a>
+                </div>
+                <div>
+                    <a href="{{ url_for('user.logout') }}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-power-off fa-lg"></i>
+                        <span class="font-semibold">Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <div class="grid-container">
-        {% for server in servers %}
+    <!-- Content Area -->
+    <div class="container mx-auto mt-20 pt-20"> <!-- Adjust margin-top to accommodate fixed navigation bar -->
+        {% if not verified %}
+        <h2 class="text-white text-center py-4">You must verify your email to create servers. <a href={{ url_for('resend_confirmation_email') }} class="text-blue-500">Resend Verification email</a></h2>
+        {% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            {% for server in servers %}
             <a href="{{ url_for('servers.server', server_id=server['attributes']['id']) }}">
-                <div class="server-box">
-                    <h3>{{ server['attributes']['name'] }}</h3>
+                <div class="bg-gray-800 shadow-lg rounded-lg p-4 hover:bg-gray-700 transition duration-300">
+                    <h3 class="text-white text-lg font-semibold">{{ server['attributes']['name'] }}</h3>
                 </div>
             </a>
-        {% endfor %}
+            {% endfor %}
+        </div>
+
+        <div class="flex justify-center mt-4">
+            {% if verified %}
+            <a href="{{ url_for('servers.create_server') }}">
+                <button class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Create Server</button>
+            </a>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="centered-button">
-        {%if verified%}
-        <a href="{{url_for('servers.create_server')}}"><button>Server create</button></a>
-        {% endif %}
-        
-    </div>
 </body>
 </html>

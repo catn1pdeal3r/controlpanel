@@ -1,38 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server {{ info['attributes']['name'] }}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/Luneslogo.png') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/server_details.css') }}">
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6122367965027230"
     crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/37a0f8002e.js" crossorigin="anonymous"></script>
 </head>
-<body>
-    {% if info['attributes']['limits']['memory'] == 128:  %}
-        <h1> WARNING: FREE SERVERS WILL BE DELETED IF YOU DO NOT LOGIN TO THE DASHBOARD EVERY 30 DAYS </h1>
-    {% endif %}
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    {% for message in messages %}
-        {{ message }}
-    {% endfor %}
-{% endif %}
-{% endwith %}
-    {% include 'taskbar.html' %}
-    <div class="server-details-container">
-        <h1>{{ info['attributes']['name'] }}</h1>
-        <a href="{{ url_for('servers.delete_server', server_id=info['attributes']['id']) }}" class="button delete-button">Delete</a>
-        <a href="https://ctrl.lunes.host/server/{{ info['attributes']['uuid'].split('-')[0] }}" class="button manage-button">Manage</a>
-        <h1>Update Plan</h1>
-        <form action="{{ url_for('servers.update_server_submit', server_id=info['attributes']['id']) }}" method="post">
-            <select id="plan" name="plan" class="plan" size="3" required>
-                {% for product in products %}
-                    <option class="plan-option" value="{{product['id']}}">{{product['name']}} Memory {{product['limits']['memory']}}, Storage {{product['limits']['disk']}}, CPU%(0=Unlimited) {{product['limits']['cpu']}}</option>
-                {% endfor %}
-            </select>
-            <br>
-            <input type="submit" value="Submit">
-        </form>
+<body class="bg-gray-900 text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-800 shadow-lg fixed w-full z-10 top-0">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('index') }}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-home fa-lg"></i>
+                        <span class="font-semibold">Home</span>
+                    </a>
+                    <a href="{{ url_for('servers.servers_index') }}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-server fa-lg"></i>
+                        <span class="font-semibold">Servers</span>
+                    </a>
+                    <a href="{{ url_for('user.index') }}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-user fa-lg"></i>
+                        <span class="font-semibold">Account</span>
+                    </a>
+                    <a href="https://discord.gg/BAdPPdN97c" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fab fa-discord fa-lg"></i>
+                        <span class="font-semibold">Discord</span>
+                    </a>
+                </div>
+                <div>
+                    <a href="{{ url_for('user.logout') }}" class="flex items-center space-x-2 text-gray-300 hover:text-white">
+                        <i class="fas fa-power-off fa-lg"></i>
+                        <span class="font-semibold">Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Area -->
+    <div class="container mx-auto mt-20 px-4"> <!-- Adjust margin-top to accommodate fixed navigation bar -->
+        {% if info['attributes']['limits']['memory'] == 128 %}
+        {% endif %}
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="bg-blue-500 text-white p-4 mb-4">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Taskbar -->
+
+        <!-- Server Details Container -->
+        <div class="mt-8">
+            <h1 class="text-3xl font-bold mb-4">{{ info['attributes']['name'] }}</h1>
+
+            <div class="flex space-x-4 mb-4">
+                <a href="{{ url_for('servers.delete_server', server_id=info['attributes']['id']) }}" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg">Delete</a>
+                <a href="https://panel.skyridgehost.com/server/{{ info['attributes']['uuid'].split('-')[0] }}" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg">Manage</a>
+            </div>
+
+            <h2 class="text-xl font-bold mb-2">Update Plan</h2>
+            <form action="{{ url_for('servers.update_server_submit', server_id=info['attributes']['id']) }}" method="post" class="mb-4">
+                <select id="plan" name="plan" class="block w-full bg-gray-800 text-white border border-gray-700 rounded-lg py-2 px-4 mb-2">
+                    {% for product in products %}
+                    <option value="{{ product['id'] }}">{{ product['name'] }} - Memory {{ product['limits']['memory'] }}, Storage {{ product['limits']['disk'] }}, CPU% (0=Unlimited) {{ product['limits']['cpu'] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Submit</button>
+            </form>
+        </div>
+
     </div>
+
 </body>
 </html>

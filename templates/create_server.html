@@ -1,56 +1,60 @@
 <!DOCTYPE html>
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/create_server.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/Luneslogo.png') }}">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <title>Create Server</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6122367965027230"
     crossorigin="anonymous"></script>
 </head>
-<body>
-    <h1> WARNING: FREE SERVERS WILL BE DELETED IF YOU DO NOT LOGIN TO THE DASHBOARD EVERY 30 DAYS </h1>
-    <h1>Create a server</h1>
-    <form action="{{ url_for('servers.create_server_submit') }}" method="post">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" required>
-        <br>
-        <label for="node_id">Node:</label>
-        <select id="node_id" name="node_id" required>
+<body class="bg-gray-900 text-white p-4">
+
+    <h1 class="text-red-600 text-center font-bold mb-4">WARNING: FREE SERVERS WILL BE DELETED IF YOU DO NOT LOGIN TO THE DASHBOARD EVERY 30 DAYS</h1>
+
+    <h1 class="text-3xl font-bold mb-4 text-center">Create a Server</h1>
+
+    <form action="{{ url_for('servers.create_server_submit') }}" method="post" class="max-w-md mx-auto">
+        <label for="name" class="block mb-2">Name</label>
+        <input type="text" id="name" name="name" required class="block w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-blue-500">
+
+        <label for="node_id" class="block mt-4 mb-2">Node:</label>
+        <select id="node_id" name="node_id" required class="block w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-blue-500">
             {% for node in nodes %}
-            <option value="{{node['node_id']}}">{{node['name']}}</option>
+            <option value="{{ node['node_id'] }}">{{ node['name'] }}</option>
             {% endfor %}
-            <!-- Add more options as needed -->
         </select>
-        <br>
-        <label for="egg">Software:</label>
-        <select id="egg_id" name="egg_id" required>
+
+        <label for="egg_id" class="block mt-4 mb-2">Software:</label>
+        <select id="egg_id" name="egg_id" required class="block w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-blue-500">
             {% for egg in eggs %}
-            <option value="{{egg['egg_id']}}">{{egg['name']}}</option>
+            <option value="{{ egg['egg_id'] }}">{{ egg['name'] }}</option>
             {% endfor %}
         </select>
-        <br>
-        <div class="button-group">
-            <button type="button" class="button active" onclick="showPlanOptions()">Plans</button>
+
+        <label for="plan" class="block mt-4 mb-2">Plan:</label>
+        <div class="relative">
+            <select id="plan" name="plan" class="appearance-none block w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-blue-500">
+                {% for product in products %}
+                <option value="{{ product['id'] }}">{{ product['name'] }} Memory {{ product['limits']['memory'] }}, Storage {{ product['limits']['disk'] }}, CPU%(0=Unlimited) {{ product['limits']['cpu'] }}</option>
+                {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-300">
+                <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 12l-6-6h12z"/>
+                </svg>
+            </div>
         </div>
-        <select id="plan" name="plan" class="plan" size="3" required>
-            {% for product in products %}
-                <option class="plan-option" value="{{product['id']}}">{{product['name']}} Memory {{product['limits']['memory']}}, Storage {{product['limits']['disk']}}, CPU%(0=Unlimited) {{product['limits']['cpu']}}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <div class="g-recaptcha" data-sitekey="{{ RECAPTCHA_PUBLIC_KEY }}"></div>
-        <input type="submit" value="Submit">
+
+                        <div class="mb-4 flex justify-center">
+                    <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_PUBLIC_KEY }}"></div>
+                </div>
+
+
+        <input type="submit" value="Submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md mt-4 block mx-auto">
     </form>
 
-    <script>
-        function showPlanOptions() {
-            const planOptions = document.querySelector(".plan");
-            const planButton = document.querySelector(".button.active");
-            planButton.classList.add("active");
-            planOptions.style.display = "block";
-        }
-    </script>
 </body>
 </html>

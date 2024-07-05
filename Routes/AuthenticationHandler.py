@@ -13,10 +13,10 @@ user = Blueprint('user', __name__)
 def login_user():
     after_request(session=session, request=request.environ)
     if request.method == "POST":
-        TURNSTILE_response = request.form.get('cf-turnstile-response')
+        turnstile_response = request.form.get('cf-turnstile-response')
         data = {
             'secret': TURNSTILE_SECRET_KEY,
-            'response': TURNSTILE_response
+            'response': turnstile_response
         }
 
         response = requests.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', data=data)
