@@ -20,7 +20,7 @@
 ![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/47beab50-30d0-4550-8070-71823a2738d3)
 ![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/fda854a4-6917-42f1-a413-71aa6a56b054)
 ![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/7a84c3cb-b380-47dc-9c09-493424d3938f)
-![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/a3bdfa53-002a-4ef3-b085-7ef23f9ee4bf)
+![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/d3b118fd-17f6-4631-830e-0330e99a43e4)
 ![image](https://github.com/catn1pdeal3r/controlpanel/assets/131113466/937185ba-527f-4d86-be5d-fc87c43a89ec)
 
 
