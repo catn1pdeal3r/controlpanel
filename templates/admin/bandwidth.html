@@ -1,0 +1,75 @@
+{% extends 'layouts/admin.html' %}
+{% block title %}Bandwidth migration | Lunes Host{% endblock %}
+{% block extra_head %}
+<style>
+.bw-rollout { color:#e2e8f0; }
+.bw-rollout h1 { font-size:1.8rem; font-weight:700; margin:0; }
+.bw-rollout h2 { font-size:1.2rem; font-weight:600; margin:0 0 12px; }
+.bw-rollout p { color:#cbd5e1; max-width:75ch; margin:8px 0 18px; }
+.bw-rollout section { margin:24px 0; }
+.bw-rollout .bw-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.bw-rollout .bw-controls form { margin:0; }
+.bw-rollout input,.bw-rollout select { background:#111827; border:1px solid #64748b; color:#e2e8f0; border-radius:6px; padding:8px 10px; }
+.bw-rollout :focus-visible { outline:2px solid #93c5fd; outline-offset:3px; }
+.bw-rollout .bw-summary { display:flex; flex-wrap:wrap; gap:12px 24px; padding:16px 0; font-variant-numeric:tabular-nums; }
+.bw-rollout .bw-summary strong { color:#fff; }
+.bw-rollout .bw-scroll { overflow-x:auto; background:#161e2c; border:1px solid #334155; border-radius:10px; }
+.bw-rollout table { width:100%; border-collapse:collapse; }
+.bw-rollout th,.bw-rollout td { padding:12px 16px; border-bottom:1px solid #334155; text-align:left; vertical-align:top; }
+.bw-rollout th { color:#fff; background:#1e293b; white-space:nowrap; font-weight:600; }
+.bw-rollout td { font-variant-numeric:tabular-nums; }
+.bw-rollout td small { display:block; color:#cbd5e1; margin-top:5px; overflow-wrap:anywhere; }
+.bw-rollout .bw-error { color:#fecaca; background:#3f222c; padding:12px 16px; border-radius:6px; }
+.bw-rollout .bw-state { white-space:nowrap; font-weight:600; }
+.bw-rollout .bw-state.complete { color:#86efac; }
+.bw-rollout .bw-state.failed,.bw-rollout .bw-state.unmatched { color:#fda4af; }
+.bw-rollout .bw-state.queued,.bw-rollout .bw-state.ready { color:#fde68a; }
+.bw-rollout .bw-plan { display:flex; flex-wrap:wrap; gap:8px; }
+.bw-rollout button:disabled { opacity:.5; cursor:not-allowed; }
+@media(max-width:640px) { .bw-rollout th,.bw-rollout td { padding:10px; } .bw-rollout .bw-controls { align-items:stretch; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="bw-rollout">
+<h1>Bandwidth migration</h1>
+<p>Apply each server’s product settings gradually. Server plans are detected with the same logic as the admin server page, then stored by server UUID. Review or correct the mappings before queueing.</p>
+<div class="bw-summary" aria-label="Rollout progress">
+<span>Status: <strong>{{ 'Paused' if rollout.state.status == 'paused' else ('Discovering page ' ~ rollout.state.discovery_page if rollout.state.discovery_page else 'Running' if rollout.counts.get('queued',0) + rollout.counts.get('ready',0) else 'Idle') }}</strong></span>
+<span>Servers: <strong>{{ rollout.total }}</strong></span><span>Unmapped: <strong>{{ rollout.unresolved }}</strong></span>
+<span>Queued: <strong>{{ rollout.counts.get('queued',0) + rollout.counts.get('ready',0) }}</strong></span>
+<span>Complete: <strong>{{ rollout.counts.get('complete',0) }}</strong></span><span>Failed: <strong>{{ rollout.counts.get('failed',0) }}</strong></span>
+</div>
+{% if rollout.state.last_error %}<p class="bw-error" role="alert">{{ rollout.state.last_error }}</p>{% endif %}
+<section>
+<h2>Rollout controls</h2>
+<div class="bw-controls">
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn-secondary" name="action" value="discover" {% if rollout.state.discovery_page or rollout.counts.get('queued',0) + rollout.counts.get('ready',0) %}disabled{% endif %}>Discover servers</button></form>
+<form method="post" id="bw-queue"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn-primary" name="action" value="queue" {% if rollout.state.discovery_page or not rollout.total %}disabled{% endif %}>Queue product policies</button></form>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn-secondary" name="action" value="{{ 'resume' if rollout.state.status == 'paused' else 'pause' }}">{{ 'Resume' if rollout.state.status == 'paused' else 'Pause' }}</button></form>
+<a class="btn-secondary" href="{{ url_for('admin.bandwidth', page=rollout.page) }}">Refresh progress</a>
+</div>
+<p>Discovery makes one read request per interval. Applying a policy takes a server identity check followed by a bandwidth update on the next interval. Only one request runs at a time across dashboard workers. Existing usage stays intact; applying a limit below current usage may restrict that server.</p>
+<form method="post" class="bw-controls"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="action" value="pace"><label for="bw-delay">Seconds between API requests</label><input id="bw-delay" name="delay_seconds" type="number" min="15" max="300" value="{{ rollout.state.delay_seconds }}" required><button class="btn-secondary">Save interval</button></form>
+</section>
+<section><h2>Product policies</h2><p>Edit these values in <code>products.py</code> and restart the dashboard. Zero means unlimited. Every server gets a custom policy from its own product.</p>
+<div class="bw-scroll"><table><thead><tr><th>Product</th><th>Monthly outbound</th><th>Normal speed</th><th>At the limit</th></tr></thead><tbody>
+{% for product in products %}{% set policy = policies.get(product.id) %}<tr><td>{{ product.name }} <small>Product {{ product.id }}</small></td>{% if policy %}<td>{{ policy.bandwidth_limit_gb ~ ' GB' if policy.bandwidth_limit_gb else 'Unlimited' }}</td><td>{{ policy.bandwidth_speed_mbps ~ ' Mbps' if policy.bandwidth_speed_mbps else 'Unlimited' }}</td><td>{{ 'Throttle to ' ~ policy.bandwidth_overage_mbps ~ ' Mbps' if policy.bandwidth_overage_action == 'throttle' else 'Block outbound' }}</td>{% else %}<td colspan="3" class="bw-error">Invalid product policy; fix products.py before queueing.</td>{% endif %}</tr>{% endfor %}
+</tbody></table></div></section>
+<section><h2>Server plan mappings</h2><p>Each row belongs to one server. Saving a mapping doesn’t send a panel API request. Queue product policies after making corrections; completed policies with unchanged settings are skipped, and failures are retried when requeued.</p>
+<div class="bw-scroll"><table><thead><tr><th>Server</th><th>Current product</th><th>Source</th><th>Migration</th></tr></thead><tbody>
+{% for row in rollout.rows %}<tr><td><a href="{{ url_for('admin.admin_server', server_id=row.server_id) }}">{{ row.server_name }}</a><small>{{ row.server_uuid }}</small><small>Panel owner {{ row.owner_id }}</small></td>
+<td><form method="post" class="bw-plan"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="action" value="assign"><input type="hidden" name="server_uuid" value="{{ row.server_uuid }}"><select name="product_id" aria-label="Product for {{ row.server_name }}" required {% if rollout.state.discovery_page %}disabled{% endif %}><option value="">Choose product</option>{% for product in products %}<option value="{{ product.id }}" {% if row.product_id == product.id %}selected{% endif %}>{{ product.name }}</option>{% endfor %}</select><button class="btn-secondary" {% if rollout.state.discovery_page %}disabled{% endif %}>Save</button></form></td>
+<td>{{ row.mapping_source }}</td><td><span class="bw-state {{ row.job_status or ('unmatched' if row.product_id is none else '') }}">{{ row.job_status or ('Needs a plan' if row.product_id is none else 'Not queued') }}</span>{% if row.job_error %}<small class="bw-error">{{ row.job_error }}</small>{% endif %}</td></tr>
+{% else %}<tr><td colspan="4">No discovered servers. Choose Discover servers to build the inventory.</td></tr>{% endfor %}
+</tbody></table></div>
+<div class="bw-controls" style="margin-top:16px">{% if rollout.page > 1 %}<a class="btn-secondary" href="{{ url_for('admin.bandwidth', page=rollout.page-1) }}">Previous</a>{% endif %}<span>Page {{ rollout.page }} of {{ rollout.pages }}</span>{% if rollout.page < rollout.pages %}<a class="btn-secondary" href="{{ url_for('admin.bandwidth', page=rollout.page+1) }}">Next</a>{% endif %}</div>
+</section>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+document.getElementById('bw-queue').addEventListener('submit', function(event) {
+    if (!window.confirm('Apply the configured product bandwidth policies to all mapped servers gradually? Existing usage will stay intact.')) event.preventDefault();
+});
+</script>
+{% endblock %}

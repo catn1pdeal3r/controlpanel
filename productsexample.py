@@ -24,6 +24,12 @@ Required Fields:
         allocations (int): Number of port allocations allowed
 
 Optional Fields:
+    bandwidth (dict): Per-server bandwidth settings; edit the placeholders in each plan.
+        limit_gb (int): Monthly outbound GB; 0 means unlimited.
+        speed_mbps (int): Normal outbound Mbps; 0 means unlimited.
+        overage_action (str): block or throttle when the monthly limit is reached.
+        overage_mbps (int): Reduced Mbps for throttle; at least 1.
+
     is_addon (bool): If True, product is purchasable but not available during server creation.
                     Used for credit packs and other non-server products.
 
@@ -47,6 +53,12 @@ products = [
             "io": 500,
             "cpu": 15
         },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
+        },
         "product_limits": {
             "databases": 0,
             "backups": 0,
@@ -65,6 +77,12 @@ products = [
             "disk": 3000,
             "io": 500,
             "cpu": 100
+        },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
         },
         "product_limits": {
             "databases": 0,
@@ -85,6 +103,12 @@ products = [
             "io": 500,
             "cpu": 0
         },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
+        },
         "product_limits": {
             "databases": 1,
             "backups": 1,
@@ -103,6 +127,12 @@ products = [
             "disk": 14336,
             "io": 500,
             "cpu": 0
+        },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
         },
         "product_limits": {
             "databases": 1,
@@ -123,6 +153,12 @@ products = [
             "io": 500,
             "cpu": 0
         },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
+        },
         "product_limits": {
             "databases": 2,
             "backups": 2,
@@ -141,6 +177,12 @@ products = [
             "disk": 28672,
             "io": 500,
             "cpu": 0
+        },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
         },
         "product_limits": {
             "databases": 2,
@@ -161,6 +203,12 @@ products = [
             "io": 500,
             "cpu": 0
         },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
+        },
         "product_limits": {
             "databases": 2,
             "backups": 3,
@@ -179,6 +227,12 @@ products = [
             "disk": 43008,
             "io": 500,
             "cpu": 0
+        },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
         },
         "product_limits": {
             "databases": 2,
@@ -199,6 +253,12 @@ products = [
             "io": 500,
             "cpu": 0
         },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
+        },
         "product_limits": {
             "databases": 4,
             "backups": 8,
@@ -217,6 +277,12 @@ products = [
             "disk": 114688,
             "io": 500,
             "cpu": 0
+        },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
         },
         "product_limits": {
             "databases": 4,
@@ -237,6 +303,12 @@ products = [
             "io": 500,
             "cpu": 0
         },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
+        },
         "product_limits": {
             "databases": 4,
             "backups": 8,
@@ -256,6 +328,12 @@ products = [
             "disk": 0,
             "io": 0,
             "cpu": 0
+        },
+        "bandwidth": {
+            "limit_gb": 0,  # Set monthly outbound GB; 0 = unlimited.
+            "speed_mbps": 0,  # Set outbound Mbps; 0 = unlimited.
+            "overage_action": "block",  # Choose "block" or "throttle" at the monthly limit.
+            "overage_mbps": 1  # Set reduced Mbps when using "throttle".
         },
         "product_limits": {
             "databases": 0,

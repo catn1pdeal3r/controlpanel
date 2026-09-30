@@ -16,7 +16,8 @@
                 {'label': 'Tickets', 'href': url_for('admin.admin_tickets_index'), 'match': 'admin.admin_tickets'},
                 {'label': 'Logs', 'href': url_for('admin.activity_logs'), 'match': 'admin.activity_logs'},
                 {'label': 'Stats', 'href': url_for('admin.admin_stats'), 'match': 'admin.admin_stats'},
-                {'label': 'Nodes', 'href': url_for('admin.nodes'), 'match': 'admin.nodes'}
+                {'label': 'Nodes', 'href': url_for('admin.nodes'), 'match': 'admin.nodes'},
+                {'label': 'Bandwidth', 'href': url_for('admin.bandwidth'), 'match': 'admin.bandwidth'}
             ] %}
             {% for item in nav_links %}
                 <a class="panel-nav__link {% if _endpoint.startswith(item.match) %}is-active{% endif %}" href="{{ item.href }}">{{ item.label }}</a>

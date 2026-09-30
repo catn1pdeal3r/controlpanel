@@ -163,3 +163,6 @@ flask_session/
 config.py
 .vscode/settings.json
 products.py
+
+# Local server inventory
+servers.txt

@@ -49,7 +49,7 @@ Handles allocation of:
 
 import asyncio
 import datetime
-from flask import Blueprint, request, render_template, session, flash, redirect, url_for, jsonify
+from flask import Blueprint, request, render_template, session, flash, redirect, url_for, jsonify, current_app
 import sys
 import requests
 from threadedreturn import ThreadWithReturnValue
@@ -66,6 +66,8 @@ from managers.utils import HEADERS
 from products import products
 from managers.database_manager import DatabaseManager
 from config import PTERODACTYL_URL, RECAPTCHA_SECRET_KEY, RECAPTCHA_SITE_KEY
+from bandwidth_policy import creation_limits, product_bandwidth
+from managers.bandwidth_manager import remember_plan
 
 servers = Blueprint('servers', __name__)
 
@@ -614,6 +616,7 @@ def create_server_submit():
 
                 found_product = True
                 main_product = product
+                product_bandwidth(main_product)
                 credits_used = main_product['price'] / 30 / 24
                 res = remove_credits(session['email'], credits_used)
                 if res == "SUSPEND":
@@ -636,7 +639,7 @@ def create_server_submit():
         "egg": egg_id,
         "docker_image": docker_image,
         "startup": startup,
-        "limits": main_product['limits'],
+        "limits": creation_limits(main_product),
         "feature_limits": main_product['product_limits'],
         "allocation": {
             "default": alloac_id
@@ -651,6 +654,12 @@ def create_server_submit():
         flash("Failed to create server try a different node or open a ticket")
         add_credits(session['email'], credits_used, False)
         webhook_log(f"Server was just created: ```{res}```", database_log=True)
+    elif res.get('attributes'):
+        try:
+            remember_plan(res['attributes'], main_product['id'])
+        except Exception:
+            current_app.logger.exception('Created server plan could not be recorded for bandwidth migration')
+            flash('Server created. Its plan record needs rediscovery in Admin → Bandwidth.')
     webhook_log(f"Server was just created: ```{res}```", database_log=True)
     return redirect(url_for('user.index'))
 
@@ -741,6 +750,7 @@ def update_server_submit(server_id, bypass_owner_only: bool = False):
 
                 found_product = True
                 main_product = product
+                product_bandwidth(main_product)
                 credits_used = main_product['price'] / 30 / 24
                 
                 is_free_plan = main_product['limits']['memory'] == 128
@@ -756,11 +766,22 @@ def update_server_submit(server_id, bypass_owner_only: bool = False):
     if not found_product:
         return "You already have free server"
 
-    body = main_product['limits']
+    body = dict(main_product['limits'])
     body["feature_limits"] = main_product['product_limits']
     body['allocation'] = resp['attributes']['allocation']
     _resp2 = requests.patch(f"{PTERODACTYL_URL}api/application/servers/{int(server_id)}/build", headers=HEADERS,
                            json=body, timeout=60)
+    if not 200 <= _resp2.status_code < 300:
+        if bypass_owner_only is False and not is_free_plan:
+            add_credits(session['email'], credits_used, False)
+        flash('The panel rejected the plan update. No bandwidth migration was queued.')
+        return redirect(url_for('index'))
+    try:
+        remember_plan(target_attrs, main_product['id'], source='upgrade', queue=True)
+        flash('Plan updated. Its bandwidth settings have been queued for gradual application.')
+    except Exception:
+        current_app.logger.exception('Updated server plan could not be queued for bandwidth migration')
+        flash('Plan updated. Rediscover or review this server in Admin → Bandwidth to apply its bandwidth settings.')
     return redirect(url_for('index'))
 
 @servers.route('/transfer/<server_id>')

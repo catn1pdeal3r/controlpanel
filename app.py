@@ -157,6 +157,14 @@ app.register_blueprint(admin, url_prefix="/admin")
 
 
 if not DEBUG_FRONTEND_MODE:
+    from managers.bandwidth_manager import ensure_schema, run_tick
+    ensure_schema()
+
+    @scheduler.task('interval', id='bandwidth_rollout', seconds=15, max_instances=1, coalesce=True, misfire_grace_time=30)
+    def process_bandwidth_rollout():
+        with app.app_context():
+            run_tick()
+
     @scheduler.task('interval', id='credit_usage', seconds=3600, misfire_grace_time=900)
     def process_credits():
         """Process hourly credit usage for all servers."""
