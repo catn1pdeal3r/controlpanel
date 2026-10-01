@@ -1,6 +1,8 @@
+from managers.suspension_manager import set_suspension, validate_reason
 from managers.database_manager import DatabaseManager
 from managers.email_manager import send_email
 from flask import current_app
+from html import escape
 from ..utils.logger import logger
 class UserDB():
 
@@ -25,24 +27,25 @@ class UserDB():
             return "Error fetching user info"
         
 
-    def suspend_user(email):
-        try:
-            send_email(email, "Account Suspended", "Your account has been suspended.", current_app._get_current_object())
-            DatabaseManager.execute_query("UPDATE users SET suspended = 1 WHERE email = %s",(email,))
-            return "User suspended"
-        except Exception as e:
-            logger.error(f"Error suspending user: {str(e)}")
-            return "Error suspending user"
-        
+    def suspend_user(email, reason, actor=None):
+        reason = validate_reason(reason)
+        row = DatabaseManager.execute_query("SELECT id FROM users WHERE email = %s", (email,))
+        if not row:
+            raise ValueError("User not found.")
+        changed = set_suspension(row[0], True, reason, actor)
+        if changed:
+            send_email(email, 'Account Suspended', 'Your account has been suspended.<br><br>Reason: ' + escape(reason).replace('\n', '<br>') + '<br><br>Log in to the dashboard and open a ticket to appeal.', current_app._get_current_object())
+        return "User suspended"
+
     def unsuspend_user(email):
-        try:
-            send_email(email, "Account Unsuspended", "Your account has been unsuspended.", current_app._get_current_object())
-            DatabaseManager.execute_query("UPDATE users SET suspended = 0 WHERE email = %s",(email,))
-            return "User unsuspended"
-        except Exception as e:
-            logger.error(f"Error unsuspending user: {str(e)}")
-            return "Error unsuspending user"
-        
+        row = DatabaseManager.execute_query("SELECT id FROM users WHERE email = %s", (email,))
+        if not row:
+            raise ValueError("User not found.")
+        changed = set_suspension(row[0], False)
+        if changed:
+            send_email(email, 'Account Unsuspended', 'Your account has been unsuspended.', current_app._get_current_object())
+        return "User unsuspended"
+
     def get_all_users():
         try:
             total_users = DatabaseManager.execute_query("SELECT COUNT(*) FROM users")[0]

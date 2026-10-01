@@ -10,6 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from managers.database_manager import DatabaseManager
+from managers.suspension_manager import set_suspension, validate_reason
 from managers.utils import HEADERS
 from config import PTERODACTYL_URL
 from security import safe_requests
@@ -38,7 +39,7 @@ def fetch_target_servers(uuids: Set[str]) -> Tuple[int, Dict[str, dict]]:
     return 200, result
 
 
-def suspend_panel_user(panel_id: int, apply: bool) -> Tuple[str, str]:
+def suspend_panel_user(panel_id: int, apply: bool, reason=None) -> Tuple[str, str]:
     row = DatabaseManager.execute_query(
         "SELECT id, email, suspended, role FROM users WHERE pterodactyl_id = %s",
         (panel_id,),
@@ -52,10 +53,7 @@ def suspend_panel_user(panel_id: int, apply: bool) -> Tuple[str, str]:
         return "already_suspended", email or f"panel_id:{panel_id}"
     if not apply:
         return "dry_run", email or f"panel_id:{panel_id}"
-    DatabaseManager.execute_query(
-        "UPDATE users SET suspended = 1 WHERE id = %s",
-        (user_id,),
-    )
+    set_suspension(user_id, True, reason, 'Administrative bulk script')
     return "suspended", email or f"panel_id:{panel_id}"
 
 
@@ -63,7 +61,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Suspend owners of servers listed by UUID")
     parser.add_argument("file", nargs="?", default=PROJECT_ROOT / "servers.txt")
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--reason", help="Required with --apply; displayed to suspended users.")
     args = parser.parse_args()
+    if args.apply:
+        try:
+            args.reason = validate_reason(args.reason)
+        except ValueError as error:
+            parser.error(str(error))
 
     file_path = Path(args.file)
     if not file_path.exists():
@@ -99,7 +103,7 @@ def main() -> int:
             continue
         if owner_id in processed_users:
             continue
-        status, email = suspend_panel_user(int(owner_id), args.apply)
+        status, email = suspend_panel_user(int(owner_id), args.apply, args.reason)
         if status == "missing_user":
             unmatched_users.append((uuid, int(owner_id)))
         elif status == "already_suspended":

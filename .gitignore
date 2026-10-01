@@ -166,3 +166,7 @@ products.py
 
 # Local server inventory
 servers.txt
+
+BANDWIDTH_INTEGRATION.md
+
+docs/ACCOUNT_SUSPENSION.md

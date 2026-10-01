@@ -96,6 +96,14 @@ def inject_discord_invites():
     }
 
 @app.context_processor
+def inject_account_suspension():
+    from managers.suspension_manager import suspension_status
+    status = suspension_status(session['email']) if 'email' in session else None
+    if status:
+        session['suspended'] = status['suspended']
+    return {'account_suspension': status}
+
+@app.context_processor
 def inject_user_roles():
     """
     Make user role checks available to all templates.

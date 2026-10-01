@@ -198,6 +198,9 @@ CREATE TABLE `users` (
   `refferals` int(11) DEFAULT 0 COMMENT 'Amount of people that went to refferal link',
   `discord_id` bigint(20) DEFAULT NULL COMMENT 'discord id',
   `show_email` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'Shows Email on codehub',
+  `suspension_reason` text DEFAULT NULL,
+  `suspended_at` datetime DEFAULT NULL,
+  `suspended_by` varchar(191) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=42103 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

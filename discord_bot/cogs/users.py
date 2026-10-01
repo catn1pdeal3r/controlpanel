@@ -70,7 +70,7 @@ class Users(commands.Cog):
             logger.error(f'Error with discord command "/info": {str(e)}')
 
     @slash_command(name="suspend", description="Suspend a user")
-    async def suspend_command(self, ctx, email: discord.Option(str, "User's email")): # type: ignore
+    async def suspend_command(self, ctx, email: discord.Option(str, "User's email"), reason: discord.Option(str, "Reason shown to the user")): # type: ignore
         if self.flask_app is None:
             await ctx.respond("Error: Flask app not initialized", ephemeral=True)
             return
@@ -79,7 +79,7 @@ class Users(commands.Cog):
                 await ctx.respond("You do not have permission to use this command.", ephemeral=True)
                 return
             try:
-                UserDB.suspend_user(email)
+                UserDB.suspend_user(email, reason, str(ctx.author))
                 embed = discord.Embed(title="User Suspended", color=discord.Color.red())
                 embed.add_field(name="Email:", value=str(email), inline=False)
                 await ctx.respond(embed=embed, ephemeral=True)
@@ -90,7 +90,7 @@ class Users(commands.Cog):
                 logger.error(f'Error with discord command "/suspend": {str(e)}')
 
     @slash_command(name="giveclient", description="Make a user a client.")
-    async def suspend_command(self, ctx, email: discord.Option(str, "User's email")): # type: ignore
+    async def giveclient_command(self, ctx, email: discord.Option(str, "User's email")): # type: ignore
         if self.flask_app is None:
             await ctx.respond("Error: Flask app not initialized", ephemeral=True)
             return

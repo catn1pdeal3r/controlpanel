@@ -42,6 +42,7 @@
                                 <td class="px-4 py-3 status-cell">
                                     {% if user.suspended %}
                                         <span class="px-2 py-1 rounded text-xs font-medium bg-red-500/10 text-red-500 border border-red-500/20">Suspended</span>
+                                        <details class="mt-2 max-w-xs text-sm text-gray-400"><summary class="cursor-pointer hover:text-gray-200">Reason</summary><p class="mt-2 whitespace-pre-wrap break-words">{{ user.suspension_reason or 'No reason recorded for this older suspension.' }}</p></details>
                                     {% else %}
                                         <span class="px-2 py-1 rounded text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20">Active</span>
                                     {% endif %}
@@ -50,7 +51,7 @@
                                     <a href="/admin/user/{{ user.id }}/servers" class="px-3 py-1 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition-colors text-xs font-medium">
                                         Servers
                                     </a>
-                                    <button onclick="toggleSuspension({{ user.id }}, this)" 
+                                    <button onclick="openSuspension({{ user.id }}, {{ 'true' if user.suspended else 'false' }})"
                                        class="px-3 py-1 rounded border transition-colors text-xs font-medium {{ 'bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20' if user.suspended else 'bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 border-yellow-500/20' }}">
                                         {{ 'Unsuspend' if user.suspended else 'Suspend' }}
                                     </button>
@@ -79,13 +80,13 @@
                         <a href="{{ url_for('admin.users', page=1, search=search_term) }}" class="px-3 py-1 rounded border border-white/10 hover:bg-white/5 text-gray-400 transition-colors">&laquo;</a>
                         <a href="{{ url_for('admin.users', page=current_page-1, search=search_term) }}" class="px-3 py-1 rounded border border-white/10 hover:bg-white/5 text-gray-400 transition-colors">&lsaquo;</a>
                     {% endif %}
-                    
+
                     {% set start = [current_page - 2, 1]|max %}
                     {% set end = [start + 4, total_pages]|min %}
                     {% set start = [end - 4, 1]|max %}
 
                     {% for p in range(start, end + 1) %}
-                        <a href="{{ url_for('admin.users', page=p, search=search_term) }}" 
+                        <a href="{{ url_for('admin.users', page=p, search=search_term) }}"
                            class="px-3 py-1 rounded border transition-colors {{ 'bg-blue-600 border-blue-600 text-white' if p == current_page else 'border-white/10 hover:bg-white/5 text-gray-400' }}">
                             {{ p }}
                         </a>
@@ -105,7 +106,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         let searchTimeout;
-        
+
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -120,7 +121,7 @@
                 window.location.href = url.toString();
             }, 500);
         });
-        
+
         if (searchInput.value) {
             searchInput.focus();
             const val = searchInput.value;
@@ -129,30 +130,34 @@
         }
     });
 
-    function toggleSuspension(userId, button) {
-        fetch(`/admin/user/toggle_suspension/${userId}`, {
-            method: 'POST'
-        }).then(response => {
-            if (response.ok) {
-                const isSuspended = button.textContent.trim() === 'Suspend';
-                button.textContent = isSuspended ? 'Unsuspend' : 'Suspend';
-                
-                // Toggle button styling
-                if (isSuspended) { // Now suspended, so button should show "Unsuspend" (green)
-                     button.className = "px-3 py-1 rounded border transition-colors text-xs font-medium bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20";
-                } else { // Now active, so button should show "Suspend" (yellow)
-                     button.className = "px-3 py-1 rounded border transition-colors text-xs font-medium bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 border-yellow-500/20";
-                }
-                
-                // Toggle status badge
-                const statusCell = button.closest('tr').querySelector('.status-cell');
-                if (isSuspended) {
-                    statusCell.innerHTML = '<span class="px-2 py-1 rounded text-xs font-medium bg-red-500/10 text-red-500 border border-red-500/20">Suspended</span>';
-                } else {
-                    statusCell.innerHTML = '<span class="px-2 py-1 rounded text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20">Active</span>';
-                }
-            }
-        });
+    function openSuspension(userId, suspended) {
+        const dialog = document.getElementById('suspension-dialog');
+        const form = document.getElementById('suspension-form');
+        const reason = document.getElementById('suspension-reason');
+        form.action = `/admin/user/toggle_suspension/${encodeURIComponent(userId)}`;
+        document.getElementById('suspension-action').value = suspended ? 'unsuspend' : 'suspend';
+        document.getElementById('suspension-title').textContent = suspended ? 'Unsuspend account' : 'Suspend account';
+        document.getElementById('suspension-submit').textContent = suspended ? 'Unsuspend account' : 'Suspend account';
+        document.getElementById('suspension-reason-group').hidden = suspended;
+        document.getElementById('unsuspension-help').classList.toggle('hidden', !suspended);
+        reason.required = !suspended;
+        reason.value = '';
+        document.getElementById('suspension-submit').disabled = false;
+        dialog.showModal();
+        if (!suspended) reason.focus();
     }
+    document.getElementById('suspension-form').addEventListener('submit', function () {
+        document.getElementById('suspension-submit').disabled = true;
+    });
 </script>
+<dialog id="suspension-dialog" class="m-auto w-full max-w-lg rounded-xl border border-white/10 bg-[#1a202c] p-6 text-gray-200 backdrop:bg-black/70" aria-labelledby="suspension-title">
+    <form id="suspension-form" method="post" class="space-y-4">
+        <h2 id="suspension-title" class="text-xl font-semibold text-white">Suspend account</h2>
+        <input type="hidden" name="csrf_token" value="{{ suspension_csrf }}">
+        <input id="suspension-action" type="hidden" name="action" value="suspend">
+        <div id="suspension-reason-group"><label for="suspension-reason" class="block mb-2 font-medium">Suspension reason</label><textarea id="suspension-reason" name="reason" rows="4" maxlength="2000" required class="w-full rounded-lg border border-white/20 bg-[#0f1219] p-3 text-white focus:border-blue-400" aria-describedby="suspension-help"></textarea><p id="suspension-help" class="mt-2 text-sm text-gray-400">The user will see this reason and can open a ticket to appeal.</p></div>
+        <p id="unsuspension-help" class="hidden text-gray-300">Restore this account's access? The current suspension reason will be cleared.</p>
+        <div class="flex justify-end gap-3"><button type="button" onclick="document.getElementById('suspension-dialog').close()" class="rounded-lg border border-white/20 px-4 py-2 hover:bg-white/5">Cancel</button><button id="suspension-submit" type="submit" class="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-600">Suspend account</button></div>
+    </form>
+</dialog>
 {% endblock %}
